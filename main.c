@@ -16,6 +16,8 @@ int *build();
 
 void zeiger();
 
+int timer(int, int, int, int, int, int);
+
 void spiel();
 
 void check();
@@ -47,36 +49,65 @@ int main() {
     return 0;
 }
 
-/*
-int *build() {
-    int gitter[9][9];  //Definieren das Gitter
-    int *pointer_to_gitter = &gitter;   //Der Zeiger zum Gitter für Rückgabe
-    for (int i = 0; i < 10; i++) {
-        // Definieren 4 Randomzahlen, die leere Plätze zeigen und zwischen 1 und 9 sind
-        randA:
-        int a = rand() % 10;
-        if (a == 0)
-            goto randA;
-        randB:
-        int b = rand() % 10;
-        if (b == 0)
-            goto randB;
-        randC:
-        int c = rand() % 10;
-        if (c == 0)
-            goto randC;
-        randD:
-        int d = rand() % 10;
-        if (d == 0)
-            goto randD;
-        for (int j = 0; j < 10; j++) {
-            if (j == a || j == b || j == c || j == d)
-                gitter[i][j]=0;
-            gitter[i][j] = rand() % 10;
-        }
+
+//int *build(int difficulty) {
+//    int gitter[9][9];  //Definieren das Gitter
+//    int *pointer_to_gitter = &gitter;   //Der Zeiger zum Gitter für Rückgabe
+//    for (int i = 0; i < 10; i++) {
+//        // Definieren 4 Randomzahlen, die leere Plätze zeigen und zwischen 1 und 9 sind
+//        randA:
+//        int a = rand() % 10;
+//        if (a == 0)
+//            goto randA;
+//        randB:
+//        int b = rand() % 10;
+//        if (b == 0)
+//            goto randB;
+//        randC:
+//        int c = rand() % 10;
+//        if (c == 0)
+//            goto randC;
+//        randD:
+//        int d = rand() % 10;
+//        if (d == 0)
+//            goto randD;
+//        for (int j = 0; j < 10; j++) {
+//            if (j == a || j == b || j == c || j == d)
+//                gitter[i][j]=0;
+//            gitter[i][j] = rand() % 10;
+//        }
+//    }
+//}
+
+int timer(int startSekunde, int startMinute, int startStunde, int neuSekunde, int neuMinute, int neuStunde) {
+    int restStde = 0, restMin = 0, restSek = 0, sekundenSumme = 0;
+    time_t now;
+    struct tm *tm;
+    if ((tm = localtime(&now)) == NULL) {
+        printf("Error extracting time stuff\n");
+        return -1;
     }
+    if ((neuSekunde - startSekunde) >= 0)
+        restSek = neuSekunde - startSekunde;
+    else {
+        startMinute -= 1;
+        startSekunde += 60;
+        restSek = neuSekunde - startSekunde;
+    }
+    if ((neuMinute - startMinute) >= 0)
+        restMin = neuMinute - startMinute;
+    else {
+        startStunde -= 1;
+        startMinute += 60;
+        restMin = neuMinute - startMinute;
+    }
+    if ((neuStunde - startStunde) >= 0)
+        restStde = neuStunde - startStunde;
+    else
+        return -1;
+    sekundenSumme = restSek + (restMin * 60) + ((restStde * 60) * 60);
+    return sekundenSumme;
 }
-*/
 
 void zeiger() {
     for (int i = 0; i < SIZE; ++i) {
@@ -113,6 +144,19 @@ void spiel() {
             antwort[i][j] = gitter[i][j];
         }
     }
+    ////////counting time
+    time_t now;
+    struct tm *tm;
+    now = time(0);
+    if ((tm = localtime(&now)) == NULL) {
+        printf("Error extracting time stuff\n");
+    }
+    int startStunde = tm->tm_hour;
+    int startMin = tm->tm_min;
+    int startSek = tm->tm_sec;
+    printf(ANSI_COLOR_CYAN"\nChronometer startet. %d Sekunden\n"ANSI_COLOR_RESET,
+           timer(startSek, startMin, startStunde, tm->tm_sec, tm->tm_min, tm->tm_hour));
+    ////////
     zeiger();
     int wert, zeile, spalte;
     while (!end()) {
@@ -131,6 +175,12 @@ void spiel() {
         scanf("%d", &spalte);
         if (wert == 0) {
             antwort[zeile - 1][spalte - 1] = 0;
+            ////////counting time
+            now = time(0);
+            tm = localtime(&now);
+            printf(ANSI_COLOR_CYAN"\nZeit: %d Sekunden\n"ANSI_COLOR_RESET,
+                   timer(startSek, startMin, startStunde, tm->tm_sec, tm->tm_min, tm->tm_hour));
+            ////////
             zeiger();
             goto eingeben;
         }
@@ -140,11 +190,23 @@ void spiel() {
         } else {
             if (gitter[zeile - 1][spalte - 1] != 0) {
                 printf("Default Werte dürfen nicht übergeschrieben werden!\n\n");
+                ////////counting time
+                now = time(0);
+                tm = localtime(&now);
+                printf(ANSI_COLOR_CYAN"\nZeit: %d Sekunden\n"ANSI_COLOR_RESET,
+                       timer(startSek, startMin, startStunde, tm->tm_sec, tm->tm_min, tm->tm_hour));
+                ////////
                 zeiger();
                 goto eingeben;
             }
         }
         antwort[zeile - 1][spalte - 1] = wert;
+        ////////counting time
+        now = time(0);
+        tm = localtime(&now);
+        printf(ANSI_COLOR_CYAN"\nZeit: %d Sekunden\n"ANSI_COLOR_RESET,
+               timer(startSek, startMin, startStunde, tm->tm_sec, tm->tm_min, tm->tm_hour));
+        ////////
         zeiger();
     }
 }
