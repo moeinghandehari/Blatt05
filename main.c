@@ -49,7 +49,6 @@ int main() {
     return 0;
 }
 
-
 //int *build(int difficulty) {
 //    int gitter[9][9];  //Definieren das Gitter
 //    int *pointer_to_gitter = &gitter;   //Der Zeiger zum Gitter für Rückgabe
